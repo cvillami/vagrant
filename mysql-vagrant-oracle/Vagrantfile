@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.define "MySqlO1" do |mysqlo1|
+    mysqlo1.vm.box = "Oracle7.4"
+    mysqlo1.vm.box_url = "http://yum.oracle.com/boxes/oraclelinux/ol74/ol74.box"
+    mysqlo1.vm.network :forwarded_port, guest: 3306, host: 3306, auto_correct: true
+    mysqlo1.vm.provision :shell, :path => "install1.sh"
+    mysqlo1.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777", "fmode=666"]
+    mysqlo1.vm.network "private_network", type: "dhcp", auto_config: true
+  end
+
+  config.vm.define "MySqlO2" do |mysqlo2|
+    mysqlo2.vm.box = "Oracle7.4"
+    mysqlo2.vm.box_url = "http://yum.oracle.com/boxes/oraclelinux/ol74/ol74.box"
+    mysqlo2.vm.network :forwarded_port, guest: 3306, host: 3306, auto_correct: true
+    mysqlo2.vm.provision :shell, :path => "install2.sh"
+    mysqlo2.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777", "fmode=666"]
+    mysqlo2.vm.network "private_network", type: "dhcp", auto_config: true
+  end
+end

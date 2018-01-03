@@ -1,0 +1,109 @@
+[mysqld]
+# The default character set is utf8
+character-set-server=utf8
+skip-partition
+
+datadir=/var/lib/mysql
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+socket=/var/lib/mysql/mysql.sock
+
+#bloque agregado
+bulk_insert_buffer_size=0
+# using the defaults for the hardware appliance / x86_64 build
+innodb_data_file_path=ibdata:100M:autoextend:max:15851M
+# innodb_additional_mem_pool_size=2M
+innodb_log_buffer_size=1M
+innodb_buffer_pool_size=64M
+# only need this buffer for the
+# mysql tablespace for authentication
+key_buffer_size=64M
+query_cache_size=32M
+query_cache_limit=8M
+innodb_log_file_size=16M
+
+# flush binary logs on commits.
+innodb_flush_log_at_trx_commit=1
+binlog_format=MIXED
+max_binlog_size=500M
+expire_logs_days=10
+# 5 gigs of binary logs, at most. Probably less.
+# And sync it too, so that the logs and the files and any remote systems are all
+# in agreement. Its a performance hit for reliability.
+sync_binlog=16
+# set larger connection limit
+max_connections=2625
+# increase timeout
+net_write_timeout=120
+
+low-priority-updates=0
+transaction-isolation=READ-COMMITTED
+# and ignore connect errors so it retries a lot
+max_connect_errors=2000000
+max_allowed_packet=256M
+interactive_timeout=864000
+slow_query_log=1
+
+# Uncommment log-bin, log-slave-update and log_bin_trust_function_creators
+# if a clustered db server
+log-bin                  = mysql-bin
+log_bin_trust_function_creators=1
+# log-slave-update
+# uncomment the next item on 1st db master server
+server-id=1
+relay-log = /var/lib/mysql/ssgrelay-bin
+relay-log-index = /var/lib/mysql/ssgrelay-bin.index
+relay-log-info-file = /var/lib/mysql/ssgrelay-bin.info
+
+# Slave reliability items:
+slave-skip-errors=126,1053,1105,1129,1158,1159,1160,1161
+slave_compressed_protocol=1
+slave-net-timeout=30
+slave_exec_mode=IDEMPOTENT
+
+# Two months of logs rollover. Its not size dependent.
+# This opens up the risk of having failed replication for 62 days.
+# If this happens, then a failed master will lose all data.
+# This is only for low traffic sites. For High traffic, 62 days is far too long.
+# For high traffic the rotate binlogs is size deterministic, therefore more reliable.
+# This can be enabled, but its NOT a good idea.
+# expire_logs_days=62
+
+
+# auto_increment_increment = 10
+# auto_increment_offset    = 1
+log-slave-updates        = true
+log_bin_trust_function_creators = true
+replicate-do-db		 = ssg
+
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+#
+# Remove leading # to turn on a very important data integrity option: logging
+# changes to the binary log between backups.
+# log_bin
+#
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+#[mysql.server]
+#user=mysql
+#basedir=/usr
+
+#[mysqld_safe]
+#log-error=/var/log/mysqld.log
+#pid-file=/var/run/mysqld/mysqld.pid
+
+[mysql]
+# command line imports of audit data can fail with max allowed packet size
+# This will help
+# max_allowed_packet=32M

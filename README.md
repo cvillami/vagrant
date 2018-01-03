@@ -1,4 +1,4 @@
-# vagrant
+# Vagrant
 
 mysql-vagrant-oracle
 --------------------
